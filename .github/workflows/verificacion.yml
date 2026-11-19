@@ -1,0 +1,16 @@
+# Llamador E2E de TASK-042 (F5-2): un solo llamador por repo.
+name: verificacion
+on:
+  pull_request:
+permissions: {}
+jobs:
+  verificacion:
+    permissions:
+      contents: read
+      checks: write
+      actions: read
+    uses: charliebk/TaskCodeTwo/.github/workflows/verificacion.yml@1028bbef46dee26d9e3393419e7f029caa63b1f5
+    with:
+      comando: sh scripts/verificar.sh
+      perfiles: completa pesada
+      huella-local: uname -sr
