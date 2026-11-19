@@ -1,4 +1,5 @@
 # Llamador E2E de TASK-042 (F5-2): un solo llamador por repo.
+# Caso c: el PR toca .github/workflows/**.
 name: verificacion
 on:
   pull_request:
