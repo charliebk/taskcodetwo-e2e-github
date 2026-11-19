@@ -9,7 +9,7 @@ jobs:
       contents: read
       checks: write
       actions: read
-    uses: charliebk/TaskCodeTwo/.github/workflows/verificacion.yml@c3e803c9b321192d9a532f0e23489648cf01c6b7
+    uses: charliebk/TaskCodeTwo/.github/workflows/verificacion.yml@88e7a1cc19aeadfaeae1b6f6566c770d050d45f7
     with:
       comando: sh scripts/verificar.sh
       perfiles: completa pesada
