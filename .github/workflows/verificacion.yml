@@ -9,8 +9,8 @@ jobs:
       contents: read
       checks: write
       actions: read
-    uses: charliebk/TaskCodeTwo/.github/workflows/verificacion.yml@88e7a1cc19aeadfaeae1b6f6566c770d050d45f7
+    uses: charliebk/TaskCodeTwo/.github/workflows/verificacion.yml@132a9dd9e20df1d5c683df13294722b488aa9763
     with:
       comando: sh scripts/verificar.sh
       perfiles: completa pesada
-      huella-local: uname -sr
+      huella-local: echo e2e-f5-2
