@@ -1,0 +1,28 @@
+# E2E de TaskCodeTwo TASK-041: llama al workflow reutilizable con el
+# contrato de argumentos de ToolsaWeb (stub scripts\verificar.bat).
+name: verificacion-toolsaweb
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      perfiles:
+        type: string
+        default: ""
+permissions: {}
+jobs:
+  verificacion:
+    permissions:
+      contents: read
+      checks: write
+    uses: charliebk/TaskCodeTwo/.github/workflows/verificacion.yml@790b72d7a59e7745109ec61a76c6ae565585b72b
+    with:
+      comando: scripts\verificar.bat
+      shell: cmd
+      argumentos-rapida: --rapida
+      argumentos-impacto: --selectiva
+      argumentos-completa: ""
+      argumentos-pesada: --pesada
+      runner-completa: '"windows-latest"'
+      runner-pesada: '"windows-latest"'
+      perfiles: ${{ inputs.perfiles }}

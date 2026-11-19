@@ -1,0 +1,19 @@
+# E2E de TaskCodeTwo TASK-041: llama al workflow reutilizable con la forma
+# de OpenDockTrading (stub scripts\odt\verificar.bat, solo el comando).
+name: verificacion-odt
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions: {}
+jobs:
+  verificacion:
+    permissions:
+      contents: read
+      checks: write
+    uses: charliebk/TaskCodeTwo/.github/workflows/verificacion.yml@790b72d7a59e7745109ec61a76c6ae565585b72b
+    with:
+      comando: scripts\odt\verificar.bat
+      shell: cmd
+      argumentos-completa: ""
+      runner-completa: '"windows-latest"'
