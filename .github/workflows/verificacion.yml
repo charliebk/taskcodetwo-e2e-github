@@ -12,4 +12,4 @@ jobs:
     uses: charliebk/TaskCodeTwo/.github/workflows/verificacion.yml@8cbac85c31fcd8fce993e3a53ba564946d25c2b8
     with:
       comando: scripts/verificar.sh
-      cola-de-merge: false
+      cola-de-merge: true
