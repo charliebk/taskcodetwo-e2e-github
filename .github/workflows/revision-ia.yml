@@ -11,8 +11,7 @@ jobs:
     permissions:
       contents: read
       actions: read
-    uses: charliebk/TaskCodeTwo/.github/workflows/revision-ia.yml@f22cc95d3abbd3452ba87ba689005db16a35e37f
-    secrets: inherit
+    uses: charliebk/TaskCodeTwo/.github/workflows/revision-ia.yml@c294bc97472c650d0d66d21fba0d707ee96e9a96
     with:
       verificacion-run: ${{ github.event.workflow_run.id }}
       head-sha: ${{ github.event.workflow_run.head_sha }}
