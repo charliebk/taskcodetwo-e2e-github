@@ -1,0 +1,72 @@
+name: ronda-reutilizable
+# E2E de TASK-052: el paso «Ronda anterior» de revision-ia.yml sin tc2 (el
+# reutilizable real exige un SHA de TaskCodeTwo publicado). Vuelca en crudo
+# los check-runs revision-ia de los commits del PR (sin el head) con el
+# GITHUB_TOKEN de un reutilizable lanzado por workflow_run (checks: read) y
+# las paginas de anotaciones de los de la App del revisor; tc2 decide en local.
+on:
+  workflow_call:
+    inputs:
+      head-sha:
+        type: string
+        required: true
+      base:
+        type: string
+        default: develop
+permissions: {}
+jobs:
+  preparar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+      checks: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ inputs.base }}
+          fetch-depth: 0
+          path: base
+      - name: Ronda anterior (volcado)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          HEAD_SHA: ${{ inputs.head-sha }}
+          BASE: ${{ inputs.base }}
+          TOKEN: ${{ github.token }}
+          SERVIDOR: ${{ github.server_url }}
+        run: |
+          set -euo pipefail
+          auth=$(printf 'x-access-token:%s' "$TOKEN" | base64 -w0)
+          echo "::add-mask::$auth"
+          export GIT_CONFIG_COUNT=1
+          export GIT_CONFIG_KEY_0="http.$SERVIDOR/.extraheader"
+          export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $auth"
+          git -C base fetch --no-tags -q origin "$HEAD_SHA"
+          dir="$RUNNER_TEMP/ronda"
+          mkdir -p "$dir/checks" "$dir/anotaciones"
+          git -C base rev-list --first-parent --max-count=102 "origin/$BASE..$HEAD_SHA" > "$dir/commits.txt"
+          cat "$dir/commits.txt"
+          k=0
+          for c in $(tail -n +2 "$dir/commits.txt"); do
+            gh api --method GET "repos/$REPO/commits/$c/check-runs" -f check_name=revision-ia -f per_page=100 > "$dir/checks/$k.json"
+            jq -c '.check_runs[] | {id, name, status, conclusion, head_sha, app: .app.id, title: .output.title}' "$dir/checks/$k.json"
+            for id in $(jq -r '.check_runs[] | select(.app.id == 5846307) | .id' "$dir/checks/$k.json"); do
+              for p in $(seq 1 30); do
+                f="$dir/anotaciones/$id-$p.json"
+                gh api --method GET "repos/$REPO/check-runs/$id/annotations" -f per_page=100 -f page="$p" > "$f"
+                [ "$(jq 'length' "$f")" -eq 100 ] || break
+              done
+            done
+            k=$((k + 1))
+          done
+          git -C base diff --name-only -z --no-renames "$(sed -n 2p "$dir/commits.txt")" "$HEAD_SHA" > "$dir/rutas.txt"
+          ls -lR "$dir"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ronda-e2e
+          path: ${{ runner.temp }}/ronda
+          if-no-files-found: error
+          retention-days: 1
